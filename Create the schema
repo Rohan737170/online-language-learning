@@ -1,0 +1,56 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class LanguageLearningSchema {
+
+    private static final String URL = "jdbc:mysql://localhost:3306/your_database_name";
+    private static final String USER = "your_username";
+    private static final String PASSWORD = "your_password";
+
+    public static void main(String[] args) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()) {
+
+            String createUsersTable = "CREATE TABLE IF NOT EXISTS Users (" +
+                    "user_id INT PRIMARY KEY AUTO_INCREMENT," +
+                    "username VARCHAR(50) NOT NULL UNIQUE," +
+                    "password VARCHAR(255) NOT NULL," +
+                    "email VARCHAR(100) NOT NULL UNIQUE," +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                    ");";
+
+            String createLanguagesTable = "CREATE TABLE IF NOT EXISTS Languages (" +
+                    "language_id INT PRIMARY KEY AUTO_INCREMENT," +
+                    "language_name VARCHAR(50) NOT NULL UNIQUE" +
+                    ");";
+
+            String createLessonsTable = "CREATE TABLE IF NOT EXISTS Lessons (" +
+                    "lesson_id INT PRIMARY KEY AUTO_INCREMENT," +
+                    "lesson_title VARCHAR(100) NOT NULL," +
+                    "language_id INT," +
+                    "FOREIGN KEY (language_id) REFERENCES Languages(language_id)" +
+                    ");";
+
+            String createProgressTable = "CREATE TABLE IF NOT EXISTS Progress (" +
+                    "progress_id INT PRIMARY KEY AUTO_INCREMENT," +
+                    "user_id INT," +
+                    "lesson_id INT," +
+                    "completed BOOLEAN DEFAULT FALSE," +
+                    "FOREIGN KEY (user_id) REFERENCES Users(user_id)," +
+                    "FOREIGN KEY (lesson_id) REFERENCES Lessons(lesson_id)" +
+                    ");";
+
+            statement.execute(createUsersTable);
+            statement.execute(createLanguagesTable);
+            statement.execute(createLessonsTable);
+            statement.execute(createProgressTable);
+
+            System.out.println("Database schema created successfully!");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
