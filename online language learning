@@ -1,0 +1,143 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// User class to store user information and progress
+class User {
+    private String username;
+    private int progress;
+
+    public User(String username) {
+        this.username = username;
+        this.progress = 0;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public void updateProgress(int points) {
+        this.progress += points;
+    }
+}
+
+// Lesson class to represent a lesson with content
+class Lesson {
+    private String title;
+    private List<String> content;
+
+    public Lesson(String title, List<String> content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void displayContent() {
+        System.out.println("\nLesson: " + title);
+        for (String line : content) {
+            System.out.println(line);
+        }
+    }
+}
+
+// Exercise class to represent quiz questions for the lessons
+class Exercise {
+    private String question;
+    private String answer;
+
+    public Exercise(String question, String answer) {
+        this.question = question;
+        this.answer = answer;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public boolean checkAnswer(String userAnswer) {
+        return userAnswer.equalsIgnoreCase(answer);
+    }
+}
+
+// Main application class
+public class LanguageLearningApp {
+    private List<Lesson> lessons;
+    private List<Exercise> exercises;
+    private User user;
+    private Scanner scanner;
+
+    public LanguageLearningApp(String username) {
+        this.user = new User(username);
+        this.lessons = new ArrayList<>();
+        this.exercises = new ArrayList<>();
+        this.scanner = new Scanner(System.in);
+        loadContent();
+    }
+
+    // Method to load sample lessons and exercises
+    private void loadContent() {
+        // Sample lesson 1: Basic phrases
+        List<String> lesson1Content = new ArrayList<>();
+        lesson1Content.add("Hello - Hola");
+        lesson1Content.add("Thank you - Gracias");
+        lessons.add(new Lesson("Spanish Basics", lesson1Content));
+
+        // Sample lesson 2: Common expressions
+        List<String> lesson2Content = new ArrayList<>();
+        lesson2Content.add("Good morning - Buenos días");
+        lesson2Content.add("Good night - Buenas noches");
+        lessons.add(new Lesson("Spanish Greetings", lesson2Content));
+
+        // Exercises for the lessons
+        exercises.add(new Exercise("Translate 'Hello' to Spanish", "Hola"));
+        exercises.add(new Exercise("Translate 'Thank you' to Spanish", "Gracias"));
+        exercises.add(new Exercise("Translate 'Good morning' to Spanish", "Buenos días"));
+        exercises.add(new Exercise("Translate 'Good night' to Spanish", "Buenas noches"));
+    }
+
+    // Method to start lessons and quizzes
+    public void startLearning() {
+        System.out.println("\nWelcome, " + user.getUsername() + "! Let's start learning!");
+
+        // Display lessons and conduct quizzes
+        for (Lesson lesson : lessons) {
+            lesson.displayContent();
+            System.out.println("\nLet's do some exercises for this lesson!");
+
+            // Display exercises related to each lesson
+            for (Exercise exercise : exercises) {
+                System.out.println("Q: " + exercise.getQuestion());
+                String userAnswer = scanner.nextLine();
+                if (exercise.checkAnswer(userAnswer)) {
+                    System.out.println("Correct!");
+                    user.updateProgress(10); // Update progress
+                } else {
+                    System.out.println("Incorrect. The correct answer is: " + exercise.checkAnswer(userAnswer));
+                }
+            }
+            System.out.println("Lesson complete!\n");
+        }
+
+        System.out.println("Your learning progress: " + user.getProgress() + " points");
+        System.out.println("Thank you for using the Language Learning App!");
+    }
+
+    // Main method to run the application
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Welcome to the Language Learning App!");
+        System.out.print("Enter your username: ");
+        String username = scanner.nextLine();
+
+        // Create app instance and start learning
+        LanguageLearningApp app = new LanguageLearningApp(username);
+        app.startLearning();
+    }
+}
