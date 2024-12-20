@@ -1,0 +1,25 @@
+<div class="container">
+    <h1>Welcome, [Username]</h1>
+    <div class="stats">
+        <div class="stat-item">
+            <h2>Enrolled Courses</h2>
+            <p>5 Courses</p>
+        </div>
+        <div class="stat-item">
+            <h2>Completed Lessons</h2>
+            <p>20 Lessons</p>
+        </div>
+        <div class="stat-item">
+            <h2>Upcoming Lessons</h2>
+            <p>3 Lessons</p>
+        </div>
+    </div>
+    <div class="recent-activities">
+        <h2>Recent Activities</h2>
+        <ul>
+            <li>Completed "Spanish Basics" lesson 5 minutes ago</li>
+            <li>Enrolled in "French Intermediate" course 2 days ago</li>
+            <li>Practiced "German Vocabulary" yesterday</li>
+        </ul>
+    </div>
+</div>
