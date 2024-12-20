@@ -1,0 +1,59 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation for profile update form
+    const profileForm = document.getElementById('profileForm');
+    
+    profileForm.addEventListener('submit', function(event) {
+        let valid = true;
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        // Username validation
+        if (username === '') {
+            showError('username', 'Username cannot be empty');
+            valid = false;
+        } else {
+            clearError('username');
+        }
+
+        // Email validation
+        if (email === '') {
+            showError('email', 'Email cannot be empty');
+            valid = false;
+        } else if (!validateEmail(email)) {
+            showError('email', 'Invalid email format');
+            valid = false;
+        } else {
+            clearError('email');
+        }
+
+        // Password validation
+        if (password === '') {
+            showError('password', 'Password cannot be empty');
+            valid = false;
+        } else {
+            clearError('password');
+        }
+
+        if (!valid) {
+            event.preventDefault();
+        }
+    });
+
+    function showError(id, message) {
+        const formControl = document.getElementById(id).parentElement;
+        const small = formControl.querySelector('small');
+        small.innerText = message;
+        formControl.className = 'form-control error';
+    }
+
+    function clearError(id) {
+        const formControl = document.getElementById(id).parentElement;
+        formControl.className = 'form-control';
+    }
+
+    function validateEmail(email) {
+        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return re.test(email);
+    }
+});
