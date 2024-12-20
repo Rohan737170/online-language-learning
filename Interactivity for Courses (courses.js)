@@ -1,0 +1,17 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const enrollButtons = document.querySelectorAll('.btn-enroll');
+
+    enrollButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const courseId = this.getAttribute('data-course-id');
+            showCourseDetails(courseId);
+        });
+    });
+
+    function showCourseDetails(courseId) {
+        // Fetch and display course details dynamically
+        console.log(`Fetching details for course ID: ${courseId}`);
+        alert(`Details for course ID: ${courseId}`);
+    }
+});
