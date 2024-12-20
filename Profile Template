@@ -1,0 +1,15 @@
+<div class="container">
+    <h1>My Profile</h1>
+    <form action="update-profile.html" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="[Current Username]" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="[Current Email]" required>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <button type="submit" class="btn">Update Profile</button>
+    </form>
+</div>
