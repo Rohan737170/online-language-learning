@@ -1,0 +1,17 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const enrollButtons = document.querySelectorAll('.btn-enroll');
+
+    enrollButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const courseId = this.getAttribute('data-course-id');
+            enrollInCourse(courseId);
+        });
+    });
+
+    function enrollInCourse(courseId) {
+        // Here you would typically make an AJAX request to enroll the user in the course
+        console.log(`Enrolling in course with ID: ${courseId}`);
+        alert('You have been enrolled in the course!');
+    }
+});
