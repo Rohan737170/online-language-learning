@@ -1,0 +1,11 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const profileForm = document.getElementById('profileForm');
+
+    profileForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent form submission for demonstration
+
+        // Here you would typically make an AJAX request to update profile details
+        console.log('Profile updated successfully!');
+        alert('Profile updated successfully!');
+    });
+});
