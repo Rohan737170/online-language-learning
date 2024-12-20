@@ -1,0 +1,12 @@
+<div class="container">
+    <h1>Course Detail: [Course Name]</h1>
+    <p>[Course Description]</p>
+    <h2>Lessons</h2>
+    <ul>
+        <li>Lesson 1: Introduction to [Language]</li>
+        <li>Lesson 2: Basic Phrases</li>
+        <li>Lesson 3: Vocabulary Building</li>
+        <!-- More lessons -->
+    </ul>
+    <a href="enroll.html" class="btn">Enroll Now</a>
+</div>
