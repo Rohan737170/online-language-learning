@@ -1,0 +1,20 @@
+<div class="container">
+    <h1>Available Courses</h1>
+    <div class="courses">
+        <div class="course">
+            <h2>Spanish Basics</h2>
+            <p>Learn the basics of Spanish.</p>
+            <a href="course-detail.html?id=1" class="btn">Enroll</a>
+        </div>
+        <div class="course">
+            <h2>French Intermediate</h2>
+            <p>Enhance your French language skills.</p>
+            <a href="course-detail.html?id=2" class="btn">Enroll</a>
+        </div>
+        <div class="course">
+            <h2>German Vocabulary</h2>
+            <p>Expand your German vocabulary.</p>
+            <a href="course-detail.html?id=3" class="btn">Enroll</a>
+        </div>
+    </div>
+</div>
