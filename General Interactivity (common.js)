@@ -1,0 +1,13 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Common event listeners or functions for all pages
+    const logoutLink = document.getElementById('logout-link');
+
+    if (logoutLink) {
+        logoutLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            // Here you would typically make an AJAX request to log out the user
+            console.log('Logging out...');
+            alert('You have been logged out!');
+        });
+    }
+});
