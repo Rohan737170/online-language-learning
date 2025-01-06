@@ -1,0 +1,144 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class LanguageLearningEventHandlingApp extends JFrame {
+
+    private JPanel mainPanel; // Main panel for content
+    private CardLayout cardLayout; // Layout manager for switching screens
+    private int score = 0; // User's quiz score
+    private int questionIndex = 0; // Current quiz question index
+
+    // Quiz data
+    private final String[][] quizQuestions = {
+        {"What is 'Hello' in Spanish?", "Hola"},
+        {"What is 'Goodbye' in Spanish?", "Adiós"},
+        {"What is 'One' in Spanish?", "Uno"}
+    };
+
+    public LanguageLearningEventHandlingApp() {
+        // Frame setup
+        setTitle("Event Handling: Language Learning");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Initialize CardLayout
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        // Add screens to the CardLayout
+        mainPanel.add(createHomeScreen(), "HOME");
+        mainPanel.add(createQuizScreen(), "QUIZ");
+        mainPanel.add(createResultScreen(), "RESULT");
+
+        // Add main panel to frame
+        add(mainPanel);
+
+        // Show home screen
+        cardLayout.show(mainPanel, "HOME");
+    }
+
+    private JPanel createHomeScreen() {
+        JPanel homePanel = new JPanel(new BorderLayout());
+        JLabel welcomeLabel = new JLabel("<html><h1>Welcome to Language Learning</h1></html>", JLabel.CENTER);
+
+        JButton startQuizButton = new JButton("Start Quiz");
+        startQuizButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                questionIndex = 0;
+                score = 0; // Reset score
+                cardLayout.show(mainPanel, "QUIZ");
+            }
+        });
+
+        homePanel.add(welcomeLabel, BorderLayout.CENTER);
+        homePanel.add(startQuizButton, BorderLayout.SOUTH);
+        return homePanel;
+    }
+
+    private JPanel createQuizScreen() {
+        JPanel quizPanel = new JPanel(new BorderLayout());
+
+        JLabel questionLabel = new JLabel("", JLabel.CENTER);
+        questionLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        JTextField answerField = new JTextField();
+        JButton submitButton = new JButton("Submit Answer");
+
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String userAnswer = answerField.getText().trim();
+                if (!userAnswer.isEmpty()) {
+                    String correctAnswer = quizQuestions[questionIndex][1];
+                    if (userAnswer.equalsIgnoreCase(correctAnswer)) {
+                        score++;
+                        JOptionPane.showMessageDialog(quizPanel, "Correct!", "Feedback", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(quizPanel, "Wrong! Correct Answer: " + correctAnswer, "Feedback", JOptionPane.ERROR_MESSAGE);
+                    }
+
+                    questionIndex++;
+                    if (questionIndex < quizQuestions.length) {
+                        questionLabel.setText(quizQuestions[questionIndex][0]);
+                        answerField.setText("");
+                    } else {
+                        cardLayout.show(mainPanel, "RESULT");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(quizPanel, "Please enter your answer.", "Warning", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
+
+        // Set up quiz panel components
+        quizPanel.add(questionLabel, BorderLayout.NORTH);
+        quizPanel.add(answerField, BorderLayout.CENTER);
+        quizPanel.add(submitButton, BorderLayout.SOUTH);
+
+        // Initialize first question
+        questionLabel.setText(quizQuestions[0][0]);
+        return quizPanel;
+    }
+
+    private JPanel createResultScreen() {
+        JPanel resultPanel = new JPanel(new BorderLayout());
+        JLabel resultLabel = new JLabel("", JLabel.CENTER);
+        resultLabel.setFont(new Font("Arial", Font.BOLD, 18));
+
+        JButton returnToHomeButton = new JButton("Return to Home");
+        returnToHomeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resultLabel.setText(""); // Clear result
+                cardLayout.show(mainPanel, "HOME");
+            }
+        });
+
+        JButton showScoreButton = new JButton("Show Score");
+        showScoreButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resultLabel.setText("<html><h2>Your Score: " + score + "/" + quizQuestions.length + "</h2></html>");
+            }
+        });
+
+        // Add components to result panel
+        resultPanel.add(resultLabel, BorderLayout.CENTER);
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        buttonPanel.add(showScoreButton);
+        buttonPanel.add(returnToHomeButton);
+        resultPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return resultPanel;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            LanguageLearningEventHandlingApp app = new LanguageLearningEventHandlingApp();
+            app.setVisible(true);
+        });
+    }
+}
