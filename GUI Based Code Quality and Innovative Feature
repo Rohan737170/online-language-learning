@@ -1,0 +1,194 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+
+public class LanguageLearningApp extends JFrame {
+    // Mock user database
+    private final HashMap<String, String> userDatabase = new HashMap<>();
+    private final HashMap<String, Integer> progressDatabase = new HashMap<>();
+
+    // State variables
+    private int score = 0;
+    private int questionIndex = 0;
+
+    // Quiz questions
+    private final String[][] quizQuestions = {
+        {"What is 'Hello' in French?", "Bonjour", "Starts with 'B'"},
+        {"What is 'Goodbye' in German?", "Auf Wiedersehen", "Two words, starts with 'A'"},
+        {"What is 'Thank You' in Spanish?", "Gracias", "Starts with 'G'"}
+    };
+
+    // UI Components
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JTextField answerField;
+    private JLabel questionLabel;
+    private JLabel progressLabel;
+
+    public LanguageLearningApp() {
+        // Mock user database
+        userDatabase.put("learner1", "pass123");
+        userDatabase.put("teacher", "teach2023");
+
+        // Setup JFrame
+        setTitle("Online Language Learning");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Show login screen initially
+        showLoginScreen();
+    }
+
+    private void showLoginScreen() {
+        JPanel loginPanel = new JPanel(new GridLayout(4, 1));
+        JLabel loginMessage = new JLabel("Login to continue", JLabel.CENTER);
+
+        usernameField = new JTextField();
+        usernameField.setBorder(BorderFactory.createTitledBorder("Username"));
+
+        passwordField = new JPasswordField();
+        passwordField.setBorder(BorderFactory.createTitledBorder("Password"));
+
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(e -> validateLogin());
+
+        loginPanel.add(loginMessage);
+        loginPanel.add(usernameField);
+        loginPanel.add(passwordField);
+        loginPanel.add(loginButton);
+
+        setContentPane(loginPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void validateLogin() {
+        String username = usernameField.getText().trim();
+        String password = new String(passwordField.getPassword()).trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username or password cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        } else if (!userDatabase.containsKey(username) || !userDatabase.get(username).equals(password)) {
+            JOptionPane.showMessageDialog(this, "Invalid credentials. Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + username + "!");
+            progressDatabase.putIfAbsent(username, 0); // Initialize progress
+            showDashboard(username);
+        }
+    }
+
+    private void showDashboard(String username) {
+        JPanel dashboardPanel = new JPanel(new BorderLayout());
+        JLabel welcomeLabel = new JLabel("Welcome, " + username + "!", JLabel.CENTER);
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
+
+        JButton startQuizButton = new JButton("Start Quiz");
+        startQuizButton.addActionListener(e -> showQuizScreen(username));
+
+        JButton viewProgressButton = new JButton("View Progress");
+        viewProgressButton.addActionListener(e -> showProgress(username));
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.addActionListener(e -> showLoginScreen());
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 3));
+        buttonPanel.add(startQuizButton);
+        buttonPanel.add(viewProgressButton);
+        buttonPanel.add(logoutButton);
+
+        dashboardPanel.add(welcomeLabel, BorderLayout.NORTH);
+        dashboardPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        setContentPane(dashboardPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void showQuizScreen(String username) {
+        JPanel quizPanel = new JPanel(new BorderLayout());
+        questionLabel = new JLabel(quizQuestions[questionIndex][0], JLabel.CENTER);
+        questionLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        answerField = new JTextField();
+        answerField.setBorder(BorderFactory.createTitledBorder("Your Answer"));
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(e -> validateQuizAnswer(username));
+
+        JButton hintButton = new JButton("Hint");
+        hintButton.addActionListener(e -> {
+            String hint = quizQuestions[questionIndex][2];
+            JOptionPane.showMessageDialog(this, "Hint: " + hint, "Hint", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        buttonPanel.add(submitButton);
+        buttonPanel.add(hintButton);
+
+        quizPanel.add(questionLabel, BorderLayout.NORTH);
+        quizPanel.add(answerField, BorderLayout.CENTER);
+        quizPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        setContentPane(quizPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void validateQuizAnswer(String username) {
+        String userAnswer = answerField.getText().trim();
+        if (userAnswer.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Answer cannot be empty!", "Validation Error", JOptionPane.WARNING_MESSAGE);
+        } else {
+            String correctAnswer = quizQuestions[questionIndex][1];
+            if (userAnswer.equalsIgnoreCase(correctAnswer)) {
+                score++;
+                JOptionPane.showMessageDialog(this, "Correct!", "Feedback", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Wrong! Correct Answer: " + correctAnswer, "Feedback", JOptionPane.ERROR_MESSAGE);
+            }
+
+            questionIndex++;
+            if (questionIndex < quizQuestions.length) {
+                questionLabel.setText(quizQuestions[questionIndex][0]);
+                answerField.setText("");
+            } else {
+                progressDatabase.put(username, score); // Save progress
+                showResultScreen(username);
+            }
+        }
+    }
+
+    private void showResultScreen(String username) {
+        JPanel resultPanel = new JPanel(new BorderLayout());
+        JLabel resultLabel = new JLabel("<html><h2>Your Score: " + score + "/" + quizQuestions.length + "</h2></html>", JLabel.CENTER);
+
+        JButton returnButton = new JButton("Return to Dashboard");
+        returnButton.addActionListener(e -> {
+            questionIndex = 0;
+            score = 0;
+            showDashboard(username);
+        });
+
+        resultPanel.add(resultLabel, BorderLayout.CENTER);
+        resultPanel.add(returnButton, BorderLayout.SOUTH);
+
+        setContentPane(resultPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void showProgress(String username) {
+        int progress = progressDatabase.getOrDefault(username, 0);
+        JOptionPane.showMessageDialog(this, username + "'s Progress: " + progress + "/" + quizQuestions.length, "Progress", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            LanguageLearningApp app = new LanguageLearningApp();
+            app.setVisible(true);
+        });
+    }
+}
