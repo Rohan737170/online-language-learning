@@ -1,0 +1,166 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+
+public class OnlineLanguageLearningApp extends JFrame {
+    // User database (username, password)
+    private final HashMap<String, String> userDatabase = new HashMap<>();
+
+    // Lessons and quiz data
+    private final String[] lessons = {
+        "<html><h2>Lesson 1: Basic Greetings</h2><ul><li>Hello: Hola</li><li>Goodbye: Adiós</li></ul></html>",
+        "<html><h2>Lesson 2: Numbers</h2><ul><li>One: Uno</li><li>Two: Dos</li><li>Three: Tres</li></ul></html>"
+    };
+
+    private final String[][] quizQuestions = {
+        {"What is 'Hello' in Spanish?", "Hola"},
+        {"What is 'Two' in Spanish?", "Dos"}
+    };
+
+    // State variables
+    private int currentLessonIndex = 0;
+    private int currentQuestionIndex = 0;
+    private int score = 0;
+
+    // GUI Components
+    private JPanel contentPanel;
+    private JLabel messageLabel;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JButton loginButton;
+
+    public OnlineLanguageLearningApp() {
+        // Initialize user database
+        userDatabase.put("user1", "password123");
+        userDatabase.put("admin", "admin@2023");
+
+        // Set up frame
+        setTitle("Online Language Learning App");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        // Initialize login screen
+        showLoginScreen();
+    }
+
+    // Show the login screen
+    private void showLoginScreen() {
+        contentPanel = new JPanel(new GridLayout(4, 1));
+        messageLabel = new JLabel("Login to access the Language Learning App", JLabel.CENTER);
+
+        usernameField = new JTextField();
+        usernameField.setBorder(BorderFactory.createTitledBorder("Username"));
+
+        passwordField = new JPasswordField();
+        passwordField.setBorder(BorderFactory.createTitledBorder("Password"));
+
+        loginButton = new JButton("Login");
+        loginButton.addActionListener(e -> authenticateUser());
+
+        contentPanel.add(messageLabel);
+        contentPanel.add(usernameField);
+        contentPanel.add(passwordField);
+        contentPanel.add(loginButton);
+
+        add(contentPanel);
+    }
+
+    // Authenticate user
+    private void authenticateUser() {
+        String username = usernameField.getText().trim();
+        String password = new String(passwordField.getPassword()).trim();
+
+        if (userDatabase.containsKey(username) && userDatabase.get(username).equals(password)) {
+            JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + username + "!");
+            showLessonScreen();
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username or password. Please try again.", "Authentication Failed", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Show the lesson screen
+    private void showLessonScreen() {
+        contentPanel.removeAll();
+        contentPanel.setLayout(new BorderLayout());
+
+        if (currentLessonIndex < lessons.length) {
+            JLabel lessonLabel = new JLabel(lessons[currentLessonIndex], JLabel.CENTER);
+            JButton nextButton = new JButton("Next");
+            nextButton.addActionListener(e -> {
+                currentLessonIndex++;
+                showLessonScreen();
+            });
+
+            contentPanel.add(lessonLabel, BorderLayout.CENTER);
+            contentPanel.add(nextButton, BorderLayout.SOUTH);
+        } else {
+            showQuizScreen();
+        }
+
+        revalidate();
+        repaint();
+    }
+
+    // Show the quiz screen
+    private void showQuizScreen() {
+        contentPanel.removeAll();
+        contentPanel.setLayout(new BorderLayout());
+
+        if (currentQuestionIndex < quizQuestions.length) {
+            JLabel questionLabel = new JLabel("<html><h2>Quiz</h2><p>" + quizQuestions[currentQuestionIndex][0] + "</p></html>", JLabel.CENTER);
+            JTextField answerField = new JTextField();
+            JButton submitButton = new JButton("Submit");
+            submitButton.addActionListener(e -> {
+                String userAnswer = answerField.getText().trim();
+                String correctAnswer = quizQuestions[currentQuestionIndex][1];
+
+                if (userAnswer.equalsIgnoreCase(correctAnswer)) {
+                    JOptionPane.showMessageDialog(this, "Correct!", "Result", JOptionPane.INFORMATION_MESSAGE);
+                    score++;
+                } else {
+                    JOptionPane.showMessageDialog(this, "Wrong! The correct answer is: " + correctAnswer, "Result", JOptionPane.ERROR_MESSAGE);
+                }
+
+                currentQuestionIndex++;
+                showQuizScreen();
+            });
+
+            contentPanel.add(questionLabel, BorderLayout.CENTER);
+            contentPanel.add(answerField, BorderLayout.NORTH);
+            contentPanel.add(submitButton, BorderLayout.SOUTH);
+        } else {
+            showFinalScoreScreen();
+        }
+
+        revalidate();
+        repaint();
+    }
+
+    // Show the final score screen
+    private void showFinalScoreScreen() {
+        contentPanel.removeAll();
+
+        JLabel scoreLabel = new JLabel("<html><h2>Quiz Completed!</h2><p>Your Score: " + score + "/" + quizQuestions.length + "</p></html>", JLabel.CENTER);
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(e -> System.exit(0));
+
+        contentPanel.setLayout(new BorderLayout());
+        contentPanel.add(scoreLabel, BorderLayout.CENTER);
+        contentPanel.add(exitButton, BorderLayout.SOUTH);
+
+        revalidate();
+        repaint();
+    }
+
+    // Main method
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            OnlineLanguageLearningApp app = new OnlineLanguageLearningApp();
+            app.setVisible(true);
+        });
+    }
+}
