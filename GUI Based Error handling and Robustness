@@ -1,0 +1,155 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class RobustLanguageLearningApp extends JFrame {
+    private static final Logger logger = Logger.getLogger(RobustLanguageLearningApp.class.getName());
+
+    private int currentLessonIndex = 0;
+    private int currentQuestionIndex = 0;
+    private int score = 0;
+
+    // Lessons
+    private final String[] lessons = {
+        "<html><h2>Lesson 1: Basic Greetings</h2><ul><li>Hello: Hola</li><li>Goodbye: Adiós</li></ul></html>",
+        "<html><h2>Lesson 2: Numbers</h2><ul><li>One: Uno</li><li>Two: Dos</li><li>Three: Tres</li></ul></html>"
+    };
+
+    // Quiz questions and answers
+    private final String[][] quizQuestions = {
+        {"What is 'Hello' in Spanish?", "Hola"},
+        {"What is 'Two' in Spanish?", "Dos"}
+    };
+
+    // Components
+    private JPanel contentPanel;
+    private JLabel lessonLabel;
+    private JTextField answerField;
+    private JButton nextButton;
+
+    public RobustLanguageLearningApp() {
+        // Set up the frame
+        setTitle("Language Learning App");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        // Initialize components
+        contentPanel = new JPanel();
+        contentPanel.setLayout(new BorderLayout());
+        lessonLabel = new JLabel(lessons[currentLessonIndex], JLabel.CENTER);
+        lessonLabel.setVerticalAlignment(SwingConstants.CENTER);
+        contentPanel.add(lessonLabel, BorderLayout.CENTER);
+
+        nextButton = new JButton("Next");
+        nextButton.addActionListener(new NextButtonListener());
+        contentPanel.add(nextButton, BorderLayout.SOUTH);
+
+        add(contentPanel);
+    }
+
+    private class NextButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                if (currentLessonIndex < lessons.length - 1) {
+                    // Move to the next lesson
+                    currentLessonIndex++;
+                    lessonLabel.setText(lessons[currentLessonIndex]);
+                } else if (currentQuestionIndex < quizQuestions.length) {
+                    // Start the quiz
+                    showQuiz();
+                } else {
+                    // Show final score
+                    showFinalScore();
+                }
+            } catch (Exception ex) {
+                handleError("An unexpected error occurred while navigating lessons or quiz.", ex);
+            }
+        }
+    }
+
+    private void showQuiz() {
+        try {
+            // Change UI for the quiz
+            String question = quizQuestions[currentQuestionIndex][0];
+            contentPanel.removeAll();
+
+            lessonLabel = new JLabel("<html><h2>Quiz</h2><p>" + question + "</p></html>", JLabel.CENTER);
+            contentPanel.add(lessonLabel, BorderLayout.CENTER);
+
+            answerField = new JTextField();
+            contentPanel.add(answerField, BorderLayout.NORTH);
+
+            nextButton.setText("Submit");
+            nextButton.removeActionListener(nextButton.getActionListeners()[0]);
+            nextButton.addActionListener(e -> checkAnswer());
+
+            revalidate();
+            repaint();
+        } catch (Exception ex) {
+            handleError("Error while displaying the quiz.", ex);
+        }
+    }
+
+    private void checkAnswer() {
+        try {
+            String userAnswer = answerField.getText().trim();
+
+            if (userAnswer.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Answer cannot be empty!", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String correctAnswer = quizQuestions[currentQuestionIndex][1];
+            if (userAnswer.equalsIgnoreCase(correctAnswer)) {
+                JOptionPane.showMessageDialog(this, "Correct!", "Result", JOptionPane.INFORMATION_MESSAGE);
+                score++;
+            } else {
+                JOptionPane.showMessageDialog(this, "Wrong! The correct answer is: " + correctAnswer, "Result", JOptionPane.ERROR_MESSAGE);
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions.length) {
+                showQuiz();
+            } else {
+                showFinalScore();
+            }
+        } catch (Exception ex) {
+            handleError("Error while checking the answer.", ex);
+        }
+    }
+
+    private void showFinalScore() {
+        try {
+            contentPanel.removeAll();
+            lessonLabel = new JLabel("<html><h2>Quiz Completed!</h2><p>Your Score: " + score + "/" + quizQuestions.length + "</p></html>", JLabel.CENTER);
+            contentPanel.add(lessonLabel, BorderLayout.CENTER);
+
+            nextButton.setText("Exit");
+            nextButton.removeActionListener(nextButton.getActionListeners()[0]);
+            nextButton.addActionListener(e -> System.exit(0));
+
+            revalidate();
+            repaint();
+        } catch (Exception ex) {
+            handleError("Error while displaying the final score.", ex);
+        }
+    }
+
+    private void handleError(String message, Exception ex) {
+        logger.log(Level.SEVERE, message, ex);
+        JOptionPane.showMessageDialog(this, message + "\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            RobustLanguageLearningApp app = new RobustLanguageLearningApp();
+            app.setVisible(true);
+        });
+    }
+}
