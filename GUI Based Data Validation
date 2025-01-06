@@ -1,0 +1,174 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+
+public class LanguageLearningValidationApp extends JFrame {
+
+    // Mock user database (username, password)
+    private final HashMap<String, String> userDatabase = new HashMap<>();
+
+    // Quiz data
+    private final String[][] quizQuestions = {
+        {"What is 'Hello' in Spanish?", "Hola"},
+        {"What is 'Goodbye' in Spanish?", "Adiós"}
+    };
+
+    // State variables
+    private int currentQuestionIndex = 0;
+    private int score = 0;
+
+    // GUI Components
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JTextField answerField;
+    private JLabel questionLabel;
+
+    public LanguageLearningValidationApp() {
+        // Initialize user database
+        userDatabase.put("user1", "password123");
+        userDatabase.put("admin", "admin@2023");
+
+        // Frame setup
+        setTitle("Data Validation: Language Learning");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Show the login screen initially
+        showLoginScreen();
+    }
+
+    private void showLoginScreen() {
+        JPanel loginPanel = new JPanel(new GridLayout(4, 1));
+        JLabel loginMessage = new JLabel("Login to continue", JLabel.CENTER);
+
+        usernameField = new JTextField();
+        usernameField.setBorder(BorderFactory.createTitledBorder("Username"));
+
+        passwordField = new JPasswordField();
+        passwordField.setBorder(BorderFactory.createTitledBorder("Password"));
+
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                validateLogin();
+            }
+        });
+
+        loginPanel.add(loginMessage);
+        loginPanel.add(usernameField);
+        loginPanel.add(passwordField);
+        loginPanel.add(loginButton);
+
+        setContentPane(loginPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void validateLogin() {
+        String username = usernameField.getText().trim();
+        String password = new String(passwordField.getPassword()).trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username or password cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        } else if (!userDatabase.containsKey(username) || !userDatabase.get(username).equals(password)) {
+            JOptionPane.showMessageDialog(this, "Invalid username or password. Please try again.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + username + "!");
+            showQuizScreen();
+        }
+    }
+
+    private void showQuizScreen() {
+        JPanel quizPanel = new JPanel(new BorderLayout());
+        questionLabel = new JLabel(quizQuestions[currentQuestionIndex][0], JLabel.CENTER);
+        questionLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        answerField = new JTextField();
+        answerField.setBorder(BorderFactory.createTitledBorder("Your Answer"));
+
+        JButton submitButton = new JButton("Submit Answer");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                validateQuizAnswer();
+            }
+        });
+
+        quizPanel.add(questionLabel, BorderLayout.NORTH);
+        quizPanel.add(answerField, BorderLayout.CENTER);
+        quizPanel.add(submitButton, BorderLayout.SOUTH);
+
+        setContentPane(quizPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void validateQuizAnswer() {
+        String userAnswer = answerField.getText().trim();
+
+        if (userAnswer.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Answer cannot be empty!", "Validation Error", JOptionPane.WARNING_MESSAGE);
+        } else {
+            String correctAnswer = quizQuestions[currentQuestionIndex][1];
+            if (userAnswer.equalsIgnoreCase(correctAnswer)) {
+                score++;
+                JOptionPane.showMessageDialog(this, "Correct!", "Feedback", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Wrong! Correct Answer: " + correctAnswer, "Feedback", JOptionPane.ERROR_MESSAGE);
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions.length) {
+                questionLabel.setText(quizQuestions[currentQuestionIndex][0]);
+                answerField.setText("");
+            } else {
+                showResultScreen();
+            }
+        }
+    }
+
+    private void showResultScreen() {
+        JPanel resultPanel = new JPanel(new BorderLayout());
+        JLabel resultLabel = new JLabel("<html><h1>Your Score: " + score + "/" + quizQuestions.length + "</h1></html>", JLabel.CENTER);
+
+        JButton restartButton = new JButton("Restart");
+        restartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                currentQuestionIndex = 0;
+                score = 0;
+                showQuizScreen();
+            }
+        });
+
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        buttonPanel.add(restartButton);
+        buttonPanel.add(exitButton);
+
+        resultPanel.add(resultLabel, BorderLayout.CENTER);
+        resultPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        setContentPane(resultPanel);
+        revalidate();
+        repaint();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            LanguageLearningValidationApp app = new LanguageLearningValidationApp();
+            app.setVisible(true);
+        });
+    }
+}
