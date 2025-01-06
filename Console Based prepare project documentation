@@ -1,0 +1,285 @@
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Map;
+import java.util.Scanner;
+
+/**
+ * The LanguageLearningApp class provides a console-based platform
+ * for users to learn languages through quizzes.
+ * 
+ * Features include:
+ * 1. User authentication with login functionality.
+ * 2. Multiple difficulty levels for quizzes.
+ * 3. Dynamic quiz questions based on difficulty.
+ * 4. Personalized feedback and progress tracking.
+ */
+public class LanguageLearningApp {
+
+    // Mock user database (username -> password)
+    private static final Map<String, String> userDatabase = new HashMap<>();
+    
+    // Mock user progress database (username -> score)
+    private static final Map<String, Integer> progressDatabase = new HashMap<>();
+    
+    // Mock quiz data (category -> questions)
+    private static final Map<String, String[][]> quizDatabase = new HashMap<>();
+
+    /**
+     * Main method to start the LanguageLearningApp.
+     * Initializes mock data and shows the login screen.
+     */
+    public static void main(String[] args) {
+        // Initialize mock data for users and quizzes
+        initializeMockData();
+
+        // Create scanner for user input
+        Scanner scanner = new Scanner(System.in);
+
+        // Show the login screen
+        showLoginScreen(scanner);
+    }
+
+    /**
+     * Initializes mock data for users and quizzes.
+     * Populates the user database and quiz database.
+     */
+    private static void initializeMockData() {
+        // Mock users
+        userDatabase.put("learner1", "password123");
+        userDatabase.put("teacher", "teach2023");
+
+        // Quiz questions for various difficulty levels
+        quizDatabase.put("Basic", new String[][]{
+            {"What is 'Hello' in French?", "Bonjour"},
+            {"What is 'Goodbye' in German?", "Auf Wiedersehen"},
+            {"What is 'Thank You' in Spanish?", "Gracias"}
+        });
+
+        quizDatabase.put("Intermediate", new String[][]{
+            {"What is 'How are you?' in French?", "Comment ça va?"},
+            {"What is 'Please' in German?", "Bitte"},
+            {"What is 'Excuse me' in Spanish?", "Perdón"}
+        });
+
+        quizDatabase.put("Advanced", new String[][]{
+            {"What is 'Good morning' in French?", "Bonjour"},
+            {"What is 'What time is it?' in German?", "Wie spät ist es?"},
+            {"What is 'I need help' in Spanish?", "Necesito ayuda"}
+        });
+    }
+
+    /**
+     * Displays the login screen and handles user login.
+     * Prompts the user for a username and password, validates credentials,
+     * and navigates to the dashboard.
+     * 
+     * @param scanner The scanner object for user input.
+     */
+    private static void showLoginScreen(Scanner scanner) {
+        System.out.println("=== Welcome to Language Learning App ===");
+        String username = getUsername(scanner);
+        String password = getPassword(scanner);
+
+        validateLogin(username, password, scanner);
+    }
+
+    /**
+     * Prompts the user to enter a username. Ensures the username is not empty.
+     * 
+     * @param scanner The scanner object for user input.
+     * @return A valid username entered by the user.
+     */
+    private static String getUsername(Scanner scanner) {
+        String username;
+        while (true) {
+            System.out.print("Enter Username: ");
+            username = scanner.nextLine().trim();
+            if (!username.isEmpty()) {
+                break;
+            }
+            System.out.println("Error: Username cannot be empty.");
+        }
+        return username;
+    }
+
+    /**
+     * Prompts the user to enter a password. Ensures the password is not empty.
+     * 
+     * @param scanner The scanner object for user input.
+     * @return A valid password entered by the user.
+     */
+    private static String getPassword(Scanner scanner) {
+        String password;
+        while (true) {
+            System.out.print("Enter Password: ");
+            password = scanner.nextLine().trim();
+            if (!password.isEmpty()) {
+                break;
+            }
+            System.out.println("Error: Password cannot be empty.");
+        }
+        return password;
+    }
+
+    /**
+     * Validates the user's login credentials by checking against the user database.
+     * If credentials are correct, navigates to the dashboard; otherwise, prompts
+     * the user to try again.
+     * 
+     * @param username The entered username.
+     * @param password The entered password.
+     * @param scanner  The scanner object for user input.
+     */
+    private static void validateLogin(String username, String password, Scanner scanner) {
+        if (userDatabase.containsKey(username) && userDatabase.get(username).equals(password)) {
+            System.out.println("Login Successful!");
+            if (!progressDatabase.containsKey(username)) {
+                progressDatabase.put(username, 0); // Initialize user progress
+            }
+            showDashboard(username, scanner);
+        } else {
+            System.out.println("Invalid credentials. Please try again.");
+            showLoginScreen(scanner);
+        }
+    }
+
+    /**
+     * Displays the user dashboard where the user can choose an action
+     * (Start Quiz, View Progress, or Logout).
+     * 
+     * @param username The logged-in user's username.
+     * @param scanner  The scanner object for user input.
+     */
+    private static void showDashboard(String username, Scanner scanner) {
+        boolean validOptionSelected = false;
+
+        while (!validOptionSelected) {
+            System.out.println("\nWelcome " + username + "!");
+            System.out.println("1. Start Quiz");
+            System.out.println("2. View Progress");
+            System.out.println("3. Logout");
+
+            int choice = getMenuChoice(scanner);
+            switch (choice) {
+                case 1:
+                    startQuiz(username, scanner);
+                    validOptionSelected = true;
+                    break;
+                case 2:
+                    viewProgress(username);
+                    validOptionSelected = true;
+                    break;
+                case 3:
+                    System.out.println("Logging out...");
+                    showLoginScreen(scanner);
+                    validOptionSelected = true;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    /**
+     * Gets a valid menu choice from the user for navigating the dashboard.
+     * Ensures the input is valid (1-3).
+     * 
+     * @param scanner The scanner object for user input.
+     * @return A valid menu choice (1-3).
+     */
+    private static int getMenuChoice(Scanner scanner) {
+        int choice = -1;
+        while (true) {
+            try {
+                System.out.print("Choose an option: ");
+                choice = scanner.nextInt();
+                scanner.nextLine();  // Consume newline character
+                if (choice < 1 || choice > 3) {
+                    throw new IllegalArgumentException("Invalid choice. Please select a valid option.");
+                }
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Please enter a valid number.");
+                scanner.nextLine(); // Consume invalid input
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+        return choice;
+    }
+
+    /**
+     * Starts the quiz by allowing the user to choose the difficulty level.
+     * Based on the difficulty, the appropriate quiz is selected and the user
+     * is prompted to answer the questions.
+     * 
+     * @param username The logged-in user's username.
+     * @param scanner  The scanner object for user input.
+     */
+    private static void startQuiz(String username, Scanner scanner) {
+        System.out.println("Choose Difficulty: ");
+        System.out.println("1. Basic");
+        System.out.println("2. Intermediate");
+        System.out.println("3. Advanced");
+
+        int choice = getDifficultyChoice(scanner);
+        String difficulty = getDifficultyLevel(choice);
+
+        if (quizDatabase.containsKey(difficulty)) {
+            takeQuiz(username, difficulty, scanner);
+        } else {
+            System.out.println("Error: Invalid difficulty selected.");
+            showDashboard(username, scanner);
+        }
+    }
+
+    /**
+     * Prompts the user to select a difficulty level for the quiz (1-3).
+     * 
+     * @param scanner The scanner object for user input.
+     * @return The difficulty choice as an integer (1-3).
+     */
+    private static int getDifficultyChoice(Scanner scanner) {
+        int difficultyChoice = -1;
+        while (true) {
+            try {
+                difficultyChoice = scanner.nextInt();
+                scanner.nextLine();  // Consume newline character
+                if (difficultyChoice < 1 || difficultyChoice > 3) {
+                    throw new IllegalArgumentException("Please choose a valid difficulty level (1-3).");
+                }
+                break;
+            } catch (InputMismatchException | IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+                scanner.nextLine(); // Consume invalid input
+            }
+        }
+        return difficultyChoice;
+    }
+
+    /**
+     * Converts the integer choice to the corresponding difficulty level (Basic, Intermediate, Advanced).
+     * 
+     * @param choice The difficulty choice as an integer.
+     * @return The corresponding difficulty level as a string.
+     */
+    private static String getDifficultyLevel(int choice) {
+        switch (choice) {
+            case 1:
+                return "Basic";
+            case 2:
+                return "Intermediate";
+            case 3:
+                return "Advanced";
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Handles the process of taking the quiz. The user is asked questions, and their answers
+     * are validated. The score is then calculated and saved to the user's progress.
+     * 
+     * @param username  The logged-in user's username.
+     * @param difficulty The difficulty level of the quiz (Basic, Intermediate, Advanced).
+     * @param scanner
