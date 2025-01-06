@@ -1,0 +1,130 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class LanguageLearningGUI extends JFrame {
+    private int currentLessonIndex = 0;
+    private int currentQuestionIndex = 0;
+    private int score = 0;
+
+    // Lessons
+    private final String[] lessons = {
+        "<html><h2>Lesson 1: Basic Greetings</h2><ul><li>Hello: Hola</li><li>Goodbye: Adiós</li></ul></html>",
+        "<html><h2>Lesson 2: Numbers</h2><ul><li>One: Uno</li><li>Two: Dos</li><li>Three: Tres</li></ul></html>"
+    };
+
+    // Quiz questions and answers
+    private final String[][] quizQuestions = {
+        {"What is 'Hello' in Spanish?", "Hola"},
+        {"What is 'Two' in Spanish?", "Dos"}
+    };
+
+    // Components
+    private JPanel contentPanel;
+    private JLabel lessonLabel;
+    private JTextField answerField;
+    private JButton nextButton;
+
+    public LanguageLearningGUI() {
+        // Set up frame
+        setTitle("Language Learning App");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        // Content panel
+        contentPanel = new JPanel();
+        contentPanel.setLayout(new BorderLayout());
+        lessonLabel = new JLabel(lessons[currentLessonIndex], JLabel.CENTER);
+        lessonLabel.setVerticalAlignment(SwingConstants.CENTER);
+        contentPanel.add(lessonLabel, BorderLayout.CENTER);
+
+        // Navigation button
+        nextButton = new JButton("Next");
+        nextButton.addActionListener(new NextButtonListener());
+        contentPanel.add(nextButton, BorderLayout.SOUTH);
+
+        // Add panel to frame
+        add(contentPanel);
+    }
+
+    private class NextButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (currentLessonIndex < lessons.length - 1) {
+                // Move to the next lesson
+                currentLessonIndex++;
+                lessonLabel.setText(lessons[currentLessonIndex]);
+            } else if (currentQuestionIndex < quizQuestions.length) {
+                // Start the quiz
+                showQuiz();
+            } else {
+                // Show the final score
+                showFinalScore();
+            }
+        }
+    }
+
+    private void showQuiz() {
+        // Change UI for the quiz
+        String question = quizQuestions[currentQuestionIndex][0];
+        contentPanel.removeAll();
+        lessonLabel = new JLabel("<html><h2>Quiz</h2><p>" + question + "</p></html>", JLabel.CENTER);
+        contentPanel.add(lessonLabel, BorderLayout.CENTER);
+
+        // Answer input
+        answerField = new JTextField();
+        contentPanel.add(answerField, BorderLayout.NORTH);
+
+        // Submit button
+        nextButton.setText("Submit");
+        nextButton.removeActionListener(nextButton.getActionListeners()[0]);
+        nextButton.addActionListener(e -> checkAnswer());
+
+        revalidate();
+        repaint();
+    }
+
+    private void checkAnswer() {
+        String userAnswer = answerField.getText().trim();
+        String correctAnswer = quizQuestions[currentQuestionIndex][1];
+
+        if (userAnswer.equalsIgnoreCase(correctAnswer)) {
+            JOptionPane.showMessageDialog(this, "Correct!", "Result", JOptionPane.INFORMATION_MESSAGE);
+            score++;
+        } else {
+            JOptionPane.showMessageDialog(this, "Wrong! The correct answer is: " + correctAnswer, "Result", JOptionPane.ERROR_MESSAGE);
+        }
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizQuestions.length) {
+            showQuiz();
+        } else {
+            showFinalScore();
+        }
+    }
+
+    private void showFinalScore() {
+        // Show the final score
+        contentPanel.removeAll();
+        lessonLabel = new JLabel("<html><h2>Quiz Completed!</h2><p>Your Score: " + score + "/" + quizQuestions.length + "</p></html>", JLabel.CENTER);
+        contentPanel.add(lessonLabel, BorderLayout.CENTER);
+
+        nextButton.setText("Exit");
+        nextButton.removeActionListener(nextButton.getActionListeners()[0]);
+        nextButton.addActionListener(e -> System.exit(0));
+
+        revalidate();
+        repaint();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            LanguageLearningGUI app = new LanguageLearningGUI();
+            app.setVisible(true);
+        });
+    }
+}
