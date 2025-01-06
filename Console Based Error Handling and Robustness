@@ -1,0 +1,166 @@
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class LanguageLearningApp {
+
+    // Mock user database
+    private static final HashMap<String, String> userDatabase = new HashMap<>();
+    private static final HashMap<String, Integer> progressDatabase = new HashMap<>();
+
+    // Quiz questions
+    private static final String[][] quizQuestions = {
+        {"What is 'Hello' in French?", "Bonjour"},
+        {"What is 'Goodbye' in German?", "Auf Wiedersehen"},
+        {"What is 'Thank You' in Spanish?", "Gracias"}
+    };
+
+    // Method to show login
+    private static void showLoginScreen(Scanner scanner) {
+        System.out.println("=== Welcome to Language Learning App ===");
+
+        // Handle invalid input for username and password
+        String username = null;
+        String password = null;
+
+        while (true) {
+            try {
+                System.out.print("Enter Username: ");
+                username = scanner.nextLine().trim();
+                if (username.isEmpty()) {
+                    throw new IllegalArgumentException("Username cannot be empty.");
+                }
+
+                System.out.print("Enter Password: ");
+                password = scanner.nextLine().trim();
+                if (password.isEmpty()) {
+                    throw new IllegalArgumentException("Password cannot be empty.");
+                }
+
+                validateLogin(username, password);
+                break;  // Exit the loop if login is successful
+
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+    }
+
+    // Method to validate login
+    private static void validateLogin(String username, String password) {
+        if (userDatabase.containsKey(username) && userDatabase.get(username).equals(password)) {
+            System.out.println("Login Successful!");
+            if (!progressDatabase.containsKey(username)) {
+                progressDatabase.put(username, 0);  // Initialize user progress
+            }
+            showDashboard(username);
+        } else {
+            System.out.println("Invalid credentials. Please try again.");
+            showLoginScreen(new Scanner(System.in));  // Recursive call to login screen
+        }
+    }
+
+    // Dashboard for users after successful login
+    private static void showDashboard(String username) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("\nWelcome " + username + "!");
+        System.out.println("1. Start Quiz");
+        System.out.println("2. View Progress");
+        System.out.println("3. Logout");
+
+        int choice = -1;
+        boolean validChoice = false;
+        while (!validChoice) {
+            try {
+                System.out.print("Choose an option: ");
+                choice = scanner.nextInt();
+                scanner.nextLine();  // Consume the newline character
+                if (choice < 1 || choice > 3) {
+                    throw new IllegalArgumentException("Invalid choice. Please select a valid option.");
+                }
+                validChoice = true;  // Exit the loop if valid input
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Please enter a number.");
+                scanner.nextLine();  // Consume the invalid input
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+
+        switch (choice) {
+            case 1:
+                startQuiz(username);
+                break;
+            case 2:
+                viewProgress(username);
+                break;
+            case 3:
+                System.out.println("Logging out...");
+                showLoginScreen(scanner);
+                break;
+            default:
+                // This should never happen due to input validation
+                break;
+        }
+    }
+
+    // Method to start the quiz
+    private static void startQuiz(String username) {
+        Scanner scanner = new Scanner(System.in);
+        int score = 0;
+
+        for (int i = 0; i < quizQuestions.length; i++) {
+            boolean validAnswer = false;
+            String userAnswer = "";
+            while (!validAnswer) {
+                try {
+                    System.out.println("\nQuestion " + (i + 1) + ": " + quizQuestions[i][0]);
+                    System.out.print("Your Answer: ");
+                    userAnswer = scanner.nextLine().trim();
+                    if (userAnswer.isEmpty()) {
+                        throw new IllegalArgumentException("Answer cannot be empty.");
+                    }
+
+                    if (userAnswer.equalsIgnoreCase(quizQuestions[i][1])) {
+                        System.out.println("Correct!");
+                        score++;
+                    } else {
+                        System.out.println("Incorrect! The correct answer is: " + quizQuestions[i][1]);
+                    }
+                    validAnswer = true;  // Exit the loop if the answer is valid
+
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+        }
+
+        // Save progress
+        progressDatabase.put(username, score);
+        System.out.println("\nYour Score: " + score + "/" + quizQuestions.length);
+        showDashboard(username);
+    }
+
+    // Method to view progress
+    private static void viewProgress(String username) {
+        if (progressDatabase.containsKey(username)) {
+            System.out.println("Your Progress: " + progressDatabase.get(username) + "/" + quizQuestions.length);
+        } else {
+            System.out.println("You haven't taken a quiz yet.");
+        }
+        showDashboard(username);
+    }
+
+    public static void main(String[] args) {
+        // Initialize mock users
+        userDatabase.put("learner1", "password123");
+        userDatabase.put("teacher", "teach2023");
+
+        // Create Scanner object for user input
+        Scanner scanner = new Scanner(System.in);
+
+        // Show login screen
+        showLoginScreen(scanner);
+    }
+}
